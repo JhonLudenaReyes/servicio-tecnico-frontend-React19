@@ -1,16 +1,34 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Table, Button, Card, Badge, Spinner } from "react-bootstrap";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Table, Button, Card, Spinner, Form } from "react-bootstrap";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  flexRender,
+  createColumnHelper,
+} from "@tanstack/react-table";
+import Swal from "sweetalert2"; // <-- Importamos SweetAlert2
 import { ciudadesApi } from "../../api/ciudades";
 import type { Ciudad } from "../../types/entities/Ciudad";
 import CiudadForm from "./components/CiudadForm";
 import { toast } from "sonner";
 
+const columnHelper = createColumnHelper<Ciudad>();
+
 export default function CiudadesPage() {
   const [showForm, setShowForm] = useState(false);
   const [selectedCiudad, setSelectedCiudad] = useState<Ciudad | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [globalFilter, setGlobalFilter] = useState("");
   const queryClient = useQueryClient();
 
   // Queries
@@ -50,15 +68,29 @@ export default function CiudadesPage() {
     onError: () => toast.error("Error al eliminar la ciudad"),
   });
 
+  // Handlers
   const handleEdit = (ciudad: Ciudad) => {
     setSelectedCiudad(ciudad);
     setShowForm(true);
   };
 
+  // --- INTEGRACIÓN DE SWEETALERT2 ---
   const handleDelete = (id: number) => {
-    if (window.confirm("¿Está seguro de eliminar esta ciudad?")) {
-      deleteMutation.mutate(id);
-    }
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "¡No podrás revertir esta acción!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#0d6efd", // Color Primary de Bootstrap
+      cancelButtonColor: "#dc3545", // Color Danger de Bootstrap
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true, // Pone el botón de confirmar a la derecha (opcional, estilo Windows)
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteMutation.mutate(id);
+      }
+    });
   };
 
   const handleCloseForm = () => {
@@ -77,9 +109,60 @@ export default function CiudadesPage() {
     }
   };
 
-  const filteredCiudades = ciudades.filter((c) =>
-    c.nombre?.toLowerCase().includes(searchTerm.toLowerCase()),
+  // Definición de Columnas
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("idCiudad", {
+        header: "ID",
+        cell: (info) => <span className="text-muted">#{info.getValue()}</span>,
+      }),
+      columnHelper.accessor("nombre", {
+        header: "Nombre",
+        cell: (info) => <span className="fw-medium">{info.getValue()}</span>,
+      }),
+      columnHelper.display({
+        id: "acciones",
+        header: () => <div className="text-end px-4">Acciones</div>,
+        cell: (info) => (
+          <div className="text-end px-4">
+            <Button
+              variant="link"
+              className="text-primary p-1 me-2"
+              onClick={() => handleEdit(info.row.original)}
+            >
+              <Pencil size={18} />
+            </Button>
+            <Button
+              variant="link"
+              className="text-danger p-1"
+              onClick={() => handleDelete(info.row.original.idCiudad || 0)}
+            >
+              <Trash2 size={18} />
+            </Button>
+          </div>
+        ),
+      }),
+    ],
+    [],
   );
+
+  // Instancia de TanStack Table
+  const table = useReactTable({
+    data: ciudades,
+    columns,
+    state: {
+      globalFilter,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
+  });
 
   if (isLoading) {
     return (
@@ -122,56 +205,50 @@ export default function CiudadesPage() {
               type="text"
               className="form-control ps-5"
               placeholder="Buscar ciudad..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={globalFilter ?? ""}
+              onChange={(e) => setGlobalFilter(String(e.target.value))}
             />
           </div>
         </Card.Header>
+
         <div className="table-responsive">
           <Table hover className="align-middle mb-0">
             <thead className="bg-light">
-              <tr>
-                <th className="px-4 py-3 border-0">ID</th>
-                <th className="py-3 border-0">Nombre</th>
-                <th className="py-3 border-0">Estado</th>
-                <th className="py-3 border-0 text-end px-4">Acciones</th>
-              </tr>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th key={header.id} className="py-3 border-0 px-4">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
             </thead>
             <tbody>
-              {filteredCiudades.length > 0 ? (
-                filteredCiudades.map((ciudad) => (
-                  <tr key={ciudad.idCiudad}>
-                    <td className="px-4 text-muted">#{ciudad.idCiudad}</td>
-                    <td className="fw-medium">{ciudad.nombre}</td>
-                    <td>
-                      <Badge
-                        bg={ciudad.estado === "A" ? "success" : "danger"}
-                        pill
-                      >
-                        {ciudad.estado === "A" ? "Activo" : "Inactivo"}
-                      </Badge>
-                    </td>
-                    <td className="text-end px-4">
-                      <Button
-                        variant="link"
-                        className="text-primary p-1 me-2"
-                        onClick={() => handleEdit(ciudad)}
-                      >
-                        <Pencil size={18} />
-                      </Button>
-                      <Button
-                        variant="link"
-                        className="text-danger p-1"
-                        onClick={() => handleDelete(ciudad.idCiudad || 0)}
-                      >
-                        <Trash2 size={18} />
-                      </Button>
-                    </td>
+              {table.getRowModel().rows.length > 0 ? (
+                table.getRowModel().rows.map((row) => (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <td key={cell.id} className="px-4">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </td>
+                    ))}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="text-center py-5 text-muted">
+                  <td
+                    colSpan={columns.length}
+                    className="text-center py-5 text-muted"
+                  >
                     No se encontraron ciudades
                   </td>
                 </tr>
@@ -179,6 +256,57 @@ export default function CiudadesPage() {
             </tbody>
           </Table>
         </div>
+
+        {/* Controles de Paginación */}
+        <Card.Footer className="bg-white py-3 border-top">
+          <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex align-items-center gap-3">
+              <span className="text-muted small d-none d-sm-block">
+                Mostrando página{" "}
+                <strong>{table.getState().pagination.pageIndex + 1}</strong> de{" "}
+                <strong>{table.getPageCount()}</strong>
+              </span>
+              <Form.Select
+                size="sm"
+                value={table.getState().pagination.pageSize}
+                onChange={(e) => {
+                  table.setPageSize(Number(e.target.value));
+                }}
+                style={{ width: "auto" }}
+                className="text-muted"
+              >
+                {[5, 10, 20, 50].map((pageSize) => (
+                  <option key={pageSize} value={pageSize}>
+                    Mostrar {pageSize}
+                  </option>
+                ))}
+              </Form.Select>
+            </div>
+
+            <div className="d-flex gap-2">
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                className="d-flex align-items-center"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <ChevronLeft size={16} />
+                <span className="d-none d-sm-inline ms-1">Anterior</span>
+              </Button>
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                className="d-flex align-items-center"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                <span className="d-none d-sm-inline me-1">Siguiente</span>
+                <ChevronRight size={16} />
+              </Button>
+            </div>
+          </div>
+        </Card.Footer>
       </Card>
 
       <CiudadForm
