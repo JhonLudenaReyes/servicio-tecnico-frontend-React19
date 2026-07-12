@@ -1,20 +1,21 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { ProtectedRoute, PublicRoute } from './auth-guard';
-import LoginPage from '../pages/auth/login';
-import DashboardLayout from '../layouts/dashboard-layout';
-import DashboardPage from '../pages/dashboard';
-import CiudadesPage from '../pages/ciudades';
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import { ProtectedRoute, PublicRoute } from "./auth-guard";
+import LoginPage from "../pages/auth/login";
+import DashboardLayout from "../layouts/dashboard-layout";
+import DashboardPage from "../pages/dashboard";
+import CiudadesPage from "../pages/ciudades";
+import TiposPage from "../pages/tipos";
 
 export const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <Navigate to="/dashboard" replace />,
   },
   {
     element: <PublicRoute />,
     children: [
       {
-        path: '/login',
+        path: "/login",
         element: <LoginPage />,
       },
     ],
@@ -26,27 +27,31 @@ export const router = createBrowserRouter([
         element: <DashboardLayout />,
         children: [
           {
-            path: '/dashboard',
+            path: "/dashboard",
             element: <DashboardPage />,
           },
           {
-            path: '/ordenes',
+            path: "/ordenes",
             element: <div>Módulo de Órdenes (En desarrollo)</div>,
           },
           {
-            path: '/clientes',
+            path: "/clientes",
             element: <div>Módulo de Clientes (En desarrollo)</div>,
           },
           {
-            path: '/equipos',
+            path: "/equipos",
             element: <div>Módulo de Equipos (En desarrollo)</div>,
           },
           {
-            path: '/ciudades',
+            path: "/ciudades",
             element: <CiudadesPage />,
           },
           {
-            path: '/configuracion',
+            path: "/tipos",
+            element: <TiposPage />,
+          },
+          {
+            path: "/configuracion",
             element: <div>Módulo de Configuración (En desarrollo)</div>,
           },
         ],
@@ -54,7 +59,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: '*',
+    path: "*",
     element: <Navigate to="/dashboard" replace />,
   },
 ]);

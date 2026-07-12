@@ -1,5 +1,5 @@
 export interface Tipo {
-  IdTipo: number;
-  TipoNombre: string;
-  Estado: string;
+  idTipo?: number;
+  nombre: string;
+  estado?: string;
 }
