@@ -1,5 +1,5 @@
 export interface Rol {
-  IdRol: number;
-  RolNombre: string;
-  Estado: string;
+  idRol: number;
+  rolNombre: string;
+  estado: string;
 }

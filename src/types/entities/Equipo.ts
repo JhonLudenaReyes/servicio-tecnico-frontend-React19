@@ -1,18 +1,18 @@
 import type { Tipo } from "./Tipo";
 
 export interface Equipo {
-  IdEquipo: number;
-  IdTipo: number;
-  Marca: string;
-  Modelo: string;
-  Serie: string;
-  Mainboard?: string;
-  Procesador?: string;
-  Memoria?: string;
-  DiscoDuro?: string;
-  Fuente?: string;
-  CasePc?: string;
-  Estado: string;
+  idEquipo?: number;
+  idTipo?: number;
+  marca: string;
+  modelo: string;
+  serie: string;
+  mainboard?: string;
+  procesador?: string;
+  memoria?: string;
+  discoDuro?: string;
+  fuente?: string;
+  casePc?: string;
+  estado?: string;
 
   // Relaciones
   Tipo?: Tipo;

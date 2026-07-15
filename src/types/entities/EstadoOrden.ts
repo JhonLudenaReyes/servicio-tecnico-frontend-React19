@@ -1,6 +1,6 @@
 export interface EstadoOrden {
-  IdEstadoOrden: number;
-  EstadoOrdenNombre: string;
-  Descripcion?: string;
-  Estado: string;
+  idEstadoOrden: number;
+  estadoOrdenNombre: string;
+  descripcion?: string;
+  estado: string;
 }

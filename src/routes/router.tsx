@@ -5,6 +5,7 @@ import DashboardLayout from "../layouts/dashboard-layout";
 import DashboardPage from "../pages/dashboard";
 import CiudadesPage from "../pages/ciudades";
 import TiposPage from "../pages/tipos";
+import EquiposPage from "../pages/equipos";
 
 export const router = createBrowserRouter([
   {
@@ -40,7 +41,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "/equipos",
-            element: <div>Módulo de Equipos (En desarrollo)</div>,
+            element: <EquiposPage />,
           },
           {
             path: "/ciudades",

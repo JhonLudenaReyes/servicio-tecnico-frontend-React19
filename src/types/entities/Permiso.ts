@@ -1,5 +1,5 @@
 export interface Permiso {
-  IdPermiso: number;
-  PermisoNombre: string;
-  Estado: string;
+  idPermiso: number;
+  permisoNombre: string;
+  estado: string;
 }

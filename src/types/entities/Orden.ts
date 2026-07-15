@@ -4,21 +4,21 @@ import type { Equipo } from "./Equipo";
 import type { EstadoOrden } from "./EstadoOrden";
 
 export interface Orden {
-  IdOrden: number;
-  IdPersona: number;
-  IdUsuario: number;
-  IdEquipo: number;
-  IdEstadoOrden: number;
-  FechaRecepcion: string;
-  PosibleProblema: string;
-  TrabajoRealizar: string;
-  Observaciones: string;
-  CondicionFisicaIngreso?: string;
-  FechaReparacion?: string;
-  FechaAproximada?: string;
-  FechaEntrega?: string;
-  ReporteTecnico?: string;
-  Estado: string;
+  idOrden: number;
+  idPersona: number;
+  idUsuario: number;
+  idEquipo: number;
+  idEstadoOrden: number;
+  fechaRecepcion: string;
+  posibleProblema: string;
+  trabajoRealizar: string;
+  observaciones: string;
+  condicionFisicaIngreso?: string;
+  fechaReparacion?: string;
+  fechaAproximada?: string;
+  fechaEntrega?: string;
+  reporteTecnico?: string;
+  estado: string;
 
   // Relaciones
   Persona?: Persona;
