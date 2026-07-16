@@ -15,5 +15,5 @@ export interface Equipo {
   estado?: string;
 
   // Relaciones
-  Tipo?: Tipo;
+  tipo?: Tipo;
 }

@@ -134,36 +134,68 @@ export default function EquiposPage() {
         header: "ID",
         cell: (info) => <span className="text-muted">#{info.getValue()}</span>,
       }),
-      columnHelper.accessor((row) => `#${row.idTipo}`, {
+      columnHelper.accessor((row) => `${row.tipo?.nombre}`, {
         id: "idTipo",
         header: "Tipo",
-        cell: (info) => <span>{info.getValue()}</span>,
+        cell: (info) => (
+          <span className="badge bg-primary py-2 px-3">{info.getValue()}</span>
+        ),
       }),
       columnHelper.accessor("marca", {
-        header: "Marca",
-        cell: (info) => <span className="fw-medium">{info.getValue()}</span>,
-      }),
-      columnHelper.accessor("modelo", {
-        header: "Modelo",
-        cell: (info) => <span>{info.getValue()}</span>,
+        header: "Marca/Modelo",
+        cell: (info) => (
+          <Row>
+            <Col xs={12} className="text-center fw-bold">
+              {info.row.original.marca}
+            </Col>
+            <Col xs={12} className="badge bg-warning py-2 px-3">
+              {info.row.original.modelo}
+            </Col>
+          </Row>
+        ),
       }),
       columnHelper.accessor("serie", {
         header: "Serie",
         cell: (info) => <span>{info.getValue()}</span>,
       }),
-      columnHelper.accessor("estado", {
-        header: "Estado",
+      columnHelper.accessor("mainboard", {
+        header: "Mainboard",
+        cell: (info) => (
+          <span className="badge bg-success py-2 px-3">{info.getValue()}</span>
+        ),
+      }),
+      columnHelper.accessor("memoria", {
+        header: "Especificaciones",
+        cell: (info) => (
+          <Row className="badge bg-success py-1 px-1">
+            <Col xs={12} className="fs-6 text-center">
+              procesador:{" "}
+              <span className="fw-bold">{info.row.original.procesador}</span>
+            </Col>
+            <Col xs={12} className="fs-6 text-center">
+              memoria:{" "}
+              <span className="fw-bold">{info.row.original.memoria}</span>
+            </Col>
+            <Col xs={12} className="fs-6 text-center">
+              disco duro:{" "}
+              <span className="fw-bold">{info.row.original.discoDuro}</span>
+            </Col>
+          </Row>
+        ),
+      }),
+      columnHelper.accessor("fuente", {
+        header: "Fuente/Case",
         cell: (info) => {
-          const value = info.getValue();
-          const badgeClass =
-            value === "Activo"
-              ? "bg-success"
-              : value === "Inactivo"
-                ? "bg-secondary"
-                : "bg-warning text-dark";
-          return (
-            <span className={`badge ${badgeClass} py-2 px-3`}>{value}</span>
-          );
+          if (!info.row.original.fuente && !info.row.original.casePc)
+            return <span className="badge bg-warning text-muted">N/A</span>;
+          <Row>
+            <Col xs={12} className="text-center fw-bold">
+              <span>{info.row.original.fuente}</span>
+            </Col>
+            <Col xs={12} className="badge bg-secondary py-2 px-3">
+              {info.row.original.casePc}
+            </Col>
+          </Row>;
         },
       }),
       columnHelper.display({
